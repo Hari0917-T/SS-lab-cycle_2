@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main() {
+    FILE *fin = fopen("object.txt","r");
+    char rec[100], name[10];
+    int start, len, addr, i;
+    
+    while(fscanf(fin,"%s",rec)!=EOF) {
+        if(rec[0]=='H') {
+            sscanf(rec,"H^%[^'^']^%X",name,&start);
+            printf("Program name: %s, start: %X\n", name, start);
+        }
+        else if(rec[0]=='T') {
+            sscanf(rec,"T^%X^%X",&addr,&len);
+            char *tok = strtok(rec,"^"); // skip 'T'
+            tok = strtok(NULL,"^");      // skip addr
+            tok = strtok(NULL,"^");      // skip length
+            while((tok=strtok(NULL,"^"))) {
+                printf("%04X : %s\n", addr, tok);
+                addr += strlen(tok)/2; // advance by bytes
+            }
+        }
+        else if(rec[0]=='E') {
+            int exec;
+            sscanf(rec,"E^%X",&exec);
+            printf("Execution begins at %X\n", exec);
+        }
+    }
+    fclose(fin);
+    return 0;
+}
